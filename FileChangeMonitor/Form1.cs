@@ -17,6 +17,7 @@ namespace FileChangeMonitor
         private FileSystemWatcher fileWatcher;
         private Timer batchTimer;
         private string previousContent;
+        private string lastChangeType;
 
         private DateTime lastChangeTime;
 
@@ -73,21 +74,7 @@ namespace FileChangeMonitor
                 Console.WriteLine($"Error reading file: {ex.Message}");
                 return;
             }
-
-            string changeType = GetChangeType(e);
-            DateTime currentTime = DateTime.Now;
-            ListViewItem item = new ListViewItem(new[] {
-                currentTime.ToString(),
-                changeType,
-                previousContent,
-                currentContent
-            });
-
-            UpdateListView(item);
-
-
-            // Update previous content with current content after processing
-            previousContent = currentContent;
+            lastChangeType = GetChangeType(e);
             lastChangeTime = DateTime.Now;
         }
         private void UpdateListView(ListViewItem item)
@@ -129,12 +116,13 @@ namespace FileChangeMonitor
             if (currentContent != previousContent)
             {
                 ListViewItem item = new ListViewItem(new[] {
-                    DateTime.Now.ToString(),
-                    "Info",
-                    "",
-                    "Last updated"
+                    lastChangeTime.ToString(),
+                    lastChangeType,
+                    previousContent,
+                    currentContent
                 });
                 UpdateListView(item);
+                previousContent = currentContent;
             }
 
         }
