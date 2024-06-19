@@ -18,6 +18,9 @@ namespace FileChangeMonitor
         private Timer batchTimer;
         private string previousContent;
 
+        private DateTime lastChangeTime;
+
+
         public Form1()
         {
             InitializeComponent();
@@ -51,13 +54,70 @@ namespace FileChangeMonitor
                     fileWatcher.Filter = Path.GetFileName(targetFilePath);
                     fileWatcher.EnableRaisingEvents = true;
                     previousContent = File.ReadAllText(targetFilePath);
+                    lastChangeTime = DateTime.Now;
                 }
             }
         }
 
         private void OnFileChanged(object sender, FileSystemEventArgs e)
         {
-            
+            System.Threading.Thread.Sleep(100);
+
+            string currentContent = string.Empty;
+            try
+            {
+                currentContent = File.ReadAllText(targetFilePath);
+            }
+            catch (IOException ex)
+            {
+                Console.WriteLine($"Error reading file: {ex.Message}");
+                return;
+            }
+
+            string changeType = GetChangeType(e);
+            DateTime currentTime = DateTime.Now;
+            ListViewItem item = new ListViewItem(new[] {
+                currentTime.ToString(),
+                changeType,
+                previousContent,
+                currentContent
+            });
+
+            UpdateListView(item);
+
+
+            // Update previous content with current content after processing
+            previousContent = currentContent;
+            lastChangeTime = DateTime.Now;
+        }
+        private void UpdateListView(ListViewItem item)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new MethodInvoker(delegate {
+                    UpdateListView(item);
+                }));
+                return;
+            }
+
+            lstChanges.Items.Add(item);
+        }
+        private string GetChangeType(FileSystemEventArgs e)
+        {
+            string changeType = string.Empty;
+            if (e.ChangeType == WatcherChangeTypes.Changed)
+            {
+                changeType = "File changed";
+            }
+            else if (e.ChangeType == WatcherChangeTypes.Created)
+            {
+                changeType = "File created";
+            }
+            else if (e.ChangeType == WatcherChangeTypes.Deleted)
+            {
+                changeType = "File deleted";
+            }
+            return changeType;
         }
 
         private void OnBatchTimerTick(object sender, EventArgs e)
@@ -68,20 +128,15 @@ namespace FileChangeMonitor
             string currentContent = File.ReadAllText(targetFilePath);
             if (currentContent != previousContent)
             {
-                string changes = GetChanges(previousContent, currentContent);
-                ReportChanges(changes);
-                previousContent = currentContent;
+                ListViewItem item = new ListViewItem(new[] {
+                    DateTime.Now.ToString(),
+                    "Info",
+                    "",
+                    "Last updated"
+                });
+                UpdateListView(item);
             }
-        }
 
-        private string GetChanges(string oldContent, string newContent)
-        {
-            return newContent;
-        }
-
-        private void ReportChanges(string changes)
-        {
-            lstChanges.Items.Add(changes);
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace FileChangeMonitor
+﻿using System.Windows.Forms;
+
+namespace FileChangeMonitor
 {
     partial class Form1
     {
@@ -9,7 +11,7 @@
         private System.Windows.Forms.Label lblInstructions;
         private System.Windows.Forms.TextBox txtFilePath;
         private System.Windows.Forms.Button btnBrowse;
-        private System.Windows.Forms.ListBox lstChanges;
+        private System.Windows.Forms.ListView lstChanges;
         /// <summary>
         /// Clean up any resources being used.
         /// </summary>
@@ -34,7 +36,7 @@
             this.lblInstructions = new System.Windows.Forms.Label();
             this.txtFilePath = new System.Windows.Forms.TextBox();
             this.btnBrowse = new System.Windows.Forms.Button();
-            this.lstChanges = new System.Windows.Forms.ListBox();
+            this.lstChanges = new System.Windows.Forms.ListView();
             this.SuspendLayout();
             // 
             // lblInstructions
@@ -68,23 +70,29 @@
             // 
             // lstChanges
             // 
-            this.lstChanges.FormattingEnabled = true;
-            this.lstChanges.ItemHeight = 16;
-            this.lstChanges.Location = new System.Drawing.Point(21, 70);
-            this.lstChanges.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.lstChanges.View = View.Details;
+            this.lstChanges.Columns.Add("Timestamp", 150);
+            this.lstChanges.Columns.Add("Change Type", 100);
+            this.lstChanges.Columns.Add("Previous Content", 250);
+            this.lstChanges.Columns.Add("New Content", 250);
+
+            // Set size and position
+            this.lstChanges.Location = new System.Drawing.Point(21, 80);
             this.lstChanges.Name = "lstChanges";
             this.lstChanges.Size = new System.Drawing.Size(871, 484);
             this.lstChanges.TabIndex = 3;
+            this.lstChanges.UseCompatibleStateImageBehavior = false;
+
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(905, 584);
-            this.Controls.Add(this.lstChanges);
             this.Controls.Add(this.btnBrowse);
             this.Controls.Add(this.txtFilePath);
             this.Controls.Add(this.lblInstructions);
+            this.Controls.Add(this.lstChanges);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.MaximizeBox = false;
